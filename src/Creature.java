@@ -1,6 +1,3 @@
-/**
- * Created by 777 on 07.04.2015.
- */
 public class Creature {
     private final double a1;
     private final double b1;
@@ -17,11 +14,11 @@ public class Creature {
 
     /**
      * Constructor for the current task, where parameters of first DE are defined
-     * @param a2
-     * @param b2
-     * @param c2
-     * @param alpha2
-     * @param beta2
+     * @param a2 - a2 coefficient
+     * @param b2 - b2 coefficient
+     * @param c2 - c2 coefficient
+     * @param alpha2 - alpha2 coefficient
+     * @param beta2 - beta2 coefficient
      */
     public Creature(double a2, double b2, double c2, double alpha2, double beta2) {
         this.a1 = 1.0;

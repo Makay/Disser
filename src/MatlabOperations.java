@@ -8,10 +8,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
-/**
- * Created by 777 on 10.04.2015.
- */
-public final class MatlabOperations {
+final class MatlabOperations {
     public static Pair<MatlabProxy, Properties> openConnection() throws MatlabConnectionException {
         MatlabProxyFactoryOptions options = new MatlabProxyFactoryOptions.Builder()
                 .setUsePreviouslyControlledSession(true).setHidden(true).build();
