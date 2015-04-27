@@ -1,11 +1,13 @@
-
 import configOperations.Operations;
+import creatures.Creature;
+import creatures.SingleExperiment;
 import javafx.util.Pair;
-import matlabcontrol.*;
+import matlabcontrol.MatlabConnectionException;
+import matlabcontrol.MatlabInvocationException;
+
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 class LoopCounter {
     public static void main(String[] args) throws MatlabConnectionException, MatlabInvocationException, ExecutionException, InterruptedException {
@@ -20,11 +22,22 @@ class LoopCounter {
         int iterationsNumber = Operations.getIterationsNumber();
 
         long start = System.nanoTime();
-//            List<Future<Pair<Creature, Creature>>> newCreatures = CreatureOperations.formGenerationParallelStart(initCreatures, bounds);
         SingleExperiment experiment = new SingleExperiment(bounds, initCreaturesNumber, iterationsNumber);
-        List<Future<Pair<Creature, Creature>>> summary = experiment.execute();
-        long timeSpent = System.nanoTime() - start;
-        System.out.println(summary.size());
-        System.out.println((double)timeSpent/1e9);
-    }
+        List<Creature> summary2 = experiment.executeGeneticAlgorithmNoMLab();
+        long timeSpent1 = System.nanoTime() - start;
+        System.out.println((double)timeSpent1/1e9);
+        System.out.println(summary2);
+
+
+//        Creature[] creatures = new Creature[8];
+//        for (int i = 0; i < 8; i++) {
+//            creatures[i] = CreatureOperations.generateCreature(bounds);
+//        }
+//        Creature[] generation = CreatureOperationsNoMLab.formGenerationSequential(creatures, bounds);
+//        for (int i = 0; i < 8; i++) {
+//            System.out.println(generation[i]);
+//        }
+//        double result = NumericOperations.mutateMapSegmentNoRate(2.9, new Pair<Double, Double>(1.0, 3.0));
+//        System.out.println(result);
+     }
 }

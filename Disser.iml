@@ -7,10 +7,10 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://D:/disser/matlabcontrol-4.1.0.jar!/" />
+          <root url="jar://D:/phd/matlabcontrol-4.1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

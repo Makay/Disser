@@ -1,3 +1,5 @@
+package matlab;
+
 import javafx.util.Pair;
 import matlabcontrol.MatlabConnectionException;
 import matlabcontrol.MatlabProxy;
@@ -8,7 +10,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
-final class MatlabOperations {
+public final class MatlabOperations {
     public static Pair<MatlabProxy, Properties> openConnection() throws MatlabConnectionException {
         MatlabProxyFactoryOptions options = new MatlabProxyFactoryOptions.Builder()
                 .setUsePreviouslyControlledSession(true).setHidden(true).build();
