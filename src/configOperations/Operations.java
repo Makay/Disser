@@ -29,4 +29,28 @@ public final class Operations {
         }
         return null;
     }
+
+
+    public static Properties getProperties() {
+        Properties properties = new Properties();
+        InputStream input = null;
+
+        try {
+            input = new FileInputStream("config.properties");
+            properties.load(input);
+
+            return properties;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
 }

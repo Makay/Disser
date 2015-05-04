@@ -1,14 +1,11 @@
 package creatures;
 
+import configOperations.Operations;
 import javafx.util.Pair;
 import matlabcontrol.*;
 import matlab.MatlabOperations;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 final class CreatureOperations {
     /** generates Creature out of array of parameters bounds
@@ -38,19 +35,6 @@ final class CreatureOperations {
                 creature1.getAlpha2(), creature1.getBeta2(), bounds[0].getKey(), bounds[0].getValue(), bounds[1].getKey(), bounds[1].getValue(),
                 bounds[2].getKey(), bounds[2].getValue(), bounds[3].getKey(), bounds[3].getValue(), bounds[4].getKey(), bounds[4].getValue());
     }
-//    private static Object[] callMatlabRecombination() {
-//        return callMatlabFunction("recombination");
-//    }
-
-//    private static Object[] callMatlabFunction(String functionName, MatlabProxy proxy,
-//                                               Creature creature0,
-//                                               Creature creature1,
-//                                               Pair<Double, Double>[] bounds) throws MatlabInvocationException {
-//        return proxy.returningFeval(functionName, 2, creature0.getA2(), creature0.getB2(), creature0.getC2(),
-//                creature0.getAlpha2(), creature0.getBeta2(), creature1.getA2(), creature1.getB2(), creature1.getC2(),
-//                creature1.getAlpha2(), creature1.getBeta2(), bounds[0].getKey(), bounds[0].getValue(), bounds[1].getKey(), bounds[1].getValue(),
-//                bounds[2].getKey(), bounds[2].getValue(), bounds[3].getKey(), bounds[3].getValue(), bounds[4].getKey(), bounds[4].getValue());
-//    }
 
     /**
      * Making of children out of parents (recombination & mutation)
@@ -62,9 +46,8 @@ final class CreatureOperations {
      * @throws MatlabInvocationException
      */
     private static Pair<Creature, Creature> makeChildrenWithMLab(Creature creature0, Creature creature1, Pair<Double, Double>[] bounds) throws MatlabConnectionException, MatlabInvocationException {
-        Pair<MatlabProxy, Properties> connection = MatlabOperations.openConnection();
-        MatlabProxy proxy = connection.getKey();
-        String path = connection.getValue().getProperty("filepath");
+        MatlabProxy proxy = MatlabOperations.openConnection();
+        String path = Operations.getProperties().getProperty("filepath");
 
         proxy.eval("addpath('" + path + "')");
 
@@ -104,15 +87,13 @@ final class CreatureOperations {
     }
 
     /**
-     * TODO Comparing creatures. Comparison is based on creatures (equations, more precisely) amplitude function
+     * Return creature with bigger fitness
      * @param creature0 - 1st input creature
      * @param creature1 - 2nd input creature
      * @return "better" creature (more likely its children would have more limit circle than other creatures' children)
      */
     private static Creature battleOfTwo(Creature creature0, Creature creature1) {
-//        return (creature0.calculateFitness() >= creature1.calculateFitness()) ? creature0 : creature1;
-        double tail = Math.random();
-        return tail > 0.5 ? creature0 : creature1;
+        return creature0.getFitness() > creature0.getFitness() ? creature0 : creature1;
     }
 
     /**
@@ -149,110 +130,87 @@ final class CreatureOperations {
         return newCreatures;
     }
     */
-    /**
-     * Make first generation
-     * @param oldCreatures - input creatures in this experiment
-     * @param bounds - bounds of parameters values
-     * @return - new generation of creatures
-     * @throws InterruptedException
-     */
-    public static List<Future<Pair<Creature, Creature>>> formGenerationParallelStart(Creature[] oldCreatures, Pair<Double, Double>[] bounds) throws InterruptedException {
-        int creatureNumber = oldCreatures.length;
-        if (creatureNumber < 4) {
-            throw new IllegalArgumentException("Not enough creatures in population");
-        }
-        int stepNumber = creatureNumber / 2;
-        ExecutorService executor = Executors.newFixedThreadPool(2);
-        List<CreatureCallable> creatureCallables = new ArrayList<CreatureCallable>();
-        for (int i = 0; i < stepNumber; i++) {
-            creatureCallables.add(new CreatureCallable(oldCreatures, bounds));
-        }
-        List<Future<Pair<Creature, Creature>>> newGeneration = executor.invokeAll(creatureCallables);
-        executor.shutdown();
-        return newGeneration;
-    }
-
-    /**
-     * Makes another generation of creatures
-     * @param intermediateCreatures - input creatures on this step
-     * @param bounds - bounds of parameters values
-     * @return - output creatures
-     * @throws ExecutionException
-     * @throws InterruptedException
-     */
-    public static List<Future<Pair<Creature, Creature>>> formGenerationParallelIntermediate(List<Future<Pair<Creature, Creature>>> intermediateCreatures, Pair<Double, Double>[] bounds) throws ExecutionException, InterruptedException {
-        int stepNumber = intermediateCreatures.size();
-        Creature[] newCreatures = new Creature[stepNumber * 2];
-        for (int i = 0; i < stepNumber; i++) {
-            newCreatures[2 *  i] = intermediateCreatures.get(i).get().getKey();
-            newCreatures[2 *  i + 1] = intermediateCreatures.get(i).get().getValue();
-        }
-        ExecutorService executor = Executors.newFixedThreadPool(2);
-        List<CreatureCallable> creatureCallables = new ArrayList<CreatureCallable>();
-        for (int i = 0; i < stepNumber; i++) {
-            creatureCallables.add(new CreatureCallable(newCreatures, bounds));
-        }
-        List<Future<Pair<Creature, Creature>>> newGeneration = executor.invokeAll(creatureCallables);
-        executor.shutdown();
-        return newGeneration;
-    }
-
-// --Commented out by Inspection START (23.04.2015 13:13):
-// --Commented out by Inspection START (23.04.2015 13:14):
+// --Commented out by Inspection START (04.05.2015 21:06):
 //    /**
-//     * TODO Building of amplitude function. Right here I need to obtain some info about creature (about its AF more precisely)
-//     * @param creature - input creature
+//     * Make first generation
+//     * @param oldCreatures - input creatures in this experiment
+//     * @param bounds - bounds of parameters values
+//     * @return - new generation of creatures
+//     * @throws InterruptedException
+//     */
+//    public static List<Future<Pair<Creature, Creature>>> formGenerationParallelStart(Creature[] oldCreatures, Pair<Double, Double>[] bounds) throws InterruptedException {
+//        int creatureNumber = oldCreatures.length;
+//        if (creatureNumber < 4) {
+//            throw new IllegalArgumentException("Not enough creatures in population");
+//        }
+//        int stepNumber = creatureNumber / 2;
+//        ExecutorService executor = Executors.newFixedThreadPool(2);
+//        List<CreatureCallable> creatureCallables = new ArrayList<CreatureCallable>();
+//        for (int i = 0; i < stepNumber; i++) {
+//            creatureCallables.add(new CreatureCallable(oldCreatures, bounds));
+//        }
+//        List<Future<Pair<Creature, Creature>>> newGeneration = executor.invokeAll(creatureCallables);
+//        executor.shutdown();
+//        return newGeneration;
+//    }
+// --Commented out by Inspection STOP (04.05.2015 21:06)
+
+// --Commented out by Inspection START (04.05.2015 21:06):
+//    /**
+//     * Makes another generation of creatures
+//     * @param intermediateCreatures - input creatures on this step
+//     * @param bounds - bounds of parameters values
+//     * @return - output creatures
+//     * @throws ExecutionException
+//     * @throws InterruptedException
+//     */
+//    public static List<Future<Pair<Creature, Creature>>> formGenerationParallelIntermediate(List<Future<Pair<Creature, Creature>>> intermediateCreatures, Pair<Double, Double>[] bounds) throws ExecutionException, InterruptedException {
+//        int stepNumber = intermediateCreatures.size();
+//        Creature[] newCreatures = new Creature[stepNumber * 2];
+//        for (int i = 0; i < stepNumber; i++) {
+//            newCreatures[2 *  i] = intermediateCreatures.get(i).get().getKey();
+//            newCreatures[2 *  i + 1] = intermediateCreatures.get(i).get().getValue();
+//        }
+//        ExecutorService executor = Executors.newFixedThreadPool(2);
+//        List<CreatureCallable> creatureCallables = new ArrayList<CreatureCallable>();
+//        for (int i = 0; i < stepNumber; i++) {
+//            creatureCallables.add(new CreatureCallable(newCreatures, bounds));
+//        }
+//        List<Future<Pair<Creature, Creature>>> newGeneration = executor.invokeAll(creatureCallables);
+//        executor.shutdown();
+//        return newGeneration;
+//    }
+// --Commented out by Inspection STOP (04.05.2015 21:06)
+
+// --Commented out by Inspection START (04.05.2015 21:06):
+//    /**
+//     * Recombination of creatures
+//     * @param creature0 - 1st parent
+//     * @param creature1 - 2nd parent
+//     * @param bounds - bounds of parameters values
+//     * @return - creatures after recombination
 //     * @throws MatlabConnectionException
 //     * @throws MatlabInvocationException
 //     */
-//    private static void poincareSmartDirection(Creature creature) throws MatlabConnectionException, MatlabInvocationException {
-//        Pair<MatlabProxy, Properties> connection = matlab.MatlabOperations.openConnection();
-//        MatlabProxy proxy = connection.getKey();
-//        String path = connection.getValue().getProperty("filepath");
+//
+//    public static Pair<Creature, Creature> recombination(Creature creature0, Creature creature1, Pair<Double, Double>[] bounds) throws MatlabConnectionException, MatlabInvocationException {
+//        MatlabProxy proxy = MatlabOperations.openConnection();
+//        String path = Operations.getProperties().getProperty("filepath");
 //
 //        proxy.eval("addpath('" + path + "')");
 //
-//        callMatlabPoincareSmartDirection(proxy, creature);
+//        Object[] resultCreatures = callMatlabRecombination(proxy, creature0, creature1, bounds);
+//        double[] childParams0 = (double[]) resultCreatures[0];
+//        double[] childParams1 = (double[]) resultCreatures[1];
+//
+//        Creature child0 = new Creature(childParams0[0], childParams0[1], childParams0[2], childParams0[3], childParams0[4]);
+//        Creature child1 = new Creature(childParams1[0], childParams1[1], childParams1[2], childParams1[3], childParams1[4]);
 //
 //        proxy.eval("rmpath('" + path + "')");
 //        proxy.disconnect();
+//        return new Pair<Creature, Creature>(child0, child1);
 //    }
-//    /**
-//     * TODO
-//     */
-//    private static void callMatlabPoincareSmartDirection(MatlabProxy proxy, Creature creature) throws MatlabInvocationException {
-//        proxy.feval("PSD", 0.1, 10000, 0, 0, 0.5, 1.e-15, creature.getA2(), creature.getB2(), creature.getC2(),
-//                creature.getAlpha2(), creature.getBeta2());
-//    }
-
-    /**
-     * Recombination of creatures
-     * @param creature0 - 1st parent
-     * @param creature1 - 2nd parent
-     * @param bounds - bounds of parameters values
-     * @return - creatures after recombination
-     * @throws MatlabConnectionException
-     * @throws MatlabInvocationException
-     */
-
-    public static Pair<Creature, Creature> recombination(Creature creature0, Creature creature1, Pair<Double, Double>[] bounds) throws MatlabConnectionException, MatlabInvocationException {
-        Pair<MatlabProxy, Properties> connection = matlab.MatlabOperations.openConnection();
-        MatlabProxy proxy = connection.getKey();
-        String path = connection.getValue().getProperty("filepath");
-
-        proxy.eval("addpath('" + path + "')");
-
-        Object[] resultCreatures = callMatlabRecombination(proxy, creature0, creature1, bounds);
-        double[] childParams0 = (double[]) resultCreatures[0];
-        double[] childParams1 = (double[]) resultCreatures[1];
-
-        Creature child0 = new Creature(childParams0[0], childParams0[1], childParams0[2], childParams0[3], childParams0[4]);
-        Creature child1 = new Creature(childParams1[0], childParams1[1], childParams1[2], childParams1[3], childParams1[4]);
-
-        proxy.eval("rmpath('" + path + "')");
-        proxy.disconnect();
-        return new Pair<Creature, Creature>(child0, child1);
-    }
+// --Commented out by Inspection STOP (04.05.2015 21:06)
 
     /**
      * We don't need this function anymore
@@ -270,4 +228,5 @@ final class CreatureOperations {
                 creature1.getAlpha2(), creature1.getBeta2(), bounds[0].getKey(), bounds[0].getValue(), bounds[1].getKey(), bounds[1].getValue(),
                 bounds[2].getKey(), bounds[2].getValue(), bounds[3].getKey(), bounds[3].getValue(), bounds[4].getKey(), bounds[4].getValue());
     }
+
 }

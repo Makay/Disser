@@ -4,8 +4,6 @@ import creatures.SingleExperiment;
 import javafx.util.Pair;
 import matlabcontrol.MatlabConnectionException;
 import matlabcontrol.MatlabInvocationException;
-
-
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -23,21 +21,9 @@ class LoopCounter {
 
         long start = System.nanoTime();
         SingleExperiment experiment = new SingleExperiment(bounds, initCreaturesNumber, iterationsNumber);
-        List<Creature> summary2 = experiment.executeGeneticAlgorithmNoMLab();
-        long timeSpent1 = System.nanoTime() - start;
-        System.out.println((double)timeSpent1/1e9);
-        System.out.println(summary2);
-
-
-//        Creature[] creatures = new Creature[8];
-//        for (int i = 0; i < 8; i++) {
-//            creatures[i] = CreatureOperations.generateCreature(bounds);
-//        }
-//        Creature[] generation = CreatureOperationsNoMLab.formGenerationSequential(creatures, bounds);
-//        for (int i = 0; i < 8; i++) {
-//            System.out.println(generation[i]);
-//        }
-//        double result = NumericOperations.mutateMapSegmentNoRate(2.9, new Pair<Double, Double>(1.0, 3.0));
-//        System.out.println(result);
-     }
+        List<Creature> summary = experiment.executeGeneticAlgorithmNoMLab();
+        long timeSpent = System.nanoTime() - start;
+        System.out.println((double)timeSpent/1e9);
+        System.out.println(summary);
+    }
 }

@@ -44,32 +44,34 @@ public class SingleExperiment {
 //        return null;
 //    }
 
-    /**
-     * Method executes the GA algorithm
-     * @return - list of creatures of the generationNumber'th generation
-     */
-    public List<Creature> executeGeneticAlgorithm() {
-        if (this.generationNumber < 1) {
-            throw new IllegalArgumentException("Number of steps must be as least 1");
-        }
-        try {
-            List<Future<Pair<Creature, Creature>>> currentGeneration = CreatureOperations.formGenerationParallelStart(this.initialCreatures, this.bounds);
-            for (int i = 0; i < this.generationNumber - 1; i++) {
-                currentGeneration = CreatureOperations.formGenerationParallelIntermediate(currentGeneration, this.bounds);
-            }
-            List<Creature> result = new ArrayList<Creature>();
-            for (Future<Pair<Creature, Creature>> aCurrentGeneration : currentGeneration) {
-                result.add(aCurrentGeneration.get().getKey());
-                result.add(aCurrentGeneration.get().getValue());
-            }
-            return result;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+// --Commented out by Inspection START (04.05.2015 21:05):
+//    /**
+//     * Method executes the GA algorithm
+//     * @return - list of creatures of the generationNumber'th generation
+//     */
+//    public List<Creature> executeGeneticAlgorithm() {
+//        if (this.generationNumber < 1) {
+//            throw new IllegalArgumentException("Number of steps must be as least 1");
+//        }
+//        try {
+//            List<Future<Pair<Creature, Creature>>> currentGeneration = CreatureOperations.formGenerationParallelStart(this.initialCreatures, this.bounds);
+//            for (int i = 0; i < this.generationNumber - 1; i++) {
+//                currentGeneration = CreatureOperations.formGenerationParallelIntermediate(currentGeneration, this.bounds);
+//            }
+//            List<Creature> result = new ArrayList<Creature>();
+//            for (Future<Pair<Creature, Creature>> aCurrentGeneration : currentGeneration) {
+//                result.add(aCurrentGeneration.get().getKey());
+//                result.add(aCurrentGeneration.get().getValue());
+//            }
+//            return result;
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        } catch (ExecutionException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
+// --Commented out by Inspection STOP (04.05.2015 21:05)
     /**
      * Method executes the GA algorithm
      * @return - list of creatures of the generationNumber'th generation
