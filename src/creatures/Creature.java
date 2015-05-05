@@ -19,6 +19,7 @@ public class Creature {
     private final double beta2;
     private final double fitness;
     private final int numberSteps = 1000;
+    private final double[][] afPoints;
 
     /**
      * Constructor for the current task, where parameters of first DE are defined
@@ -40,6 +41,7 @@ public class Creature {
         this.alpha2 = alpha2;
         this.beta2 = beta2;
         this.fitness = fitnessFunctionExtremum();
+        this.afPoints = PSD();
     }
 
     public Creature(double[] values) {
@@ -57,6 +59,7 @@ public class Creature {
         this.alpha2 = values[3];
         this.beta2 = values[4];
         this.fitness = fitnessFunctionExtremum();
+        this.afPoints = PSD();
     }
 
     public double getA2() {
@@ -109,31 +112,41 @@ public class Creature {
     /**
      * TODO rewrite this function using some ODE solver (library)
      * @return - array of points (AF)
-     * @throws MatlabInvocationException
-     * @throws MatlabConnectionException
      */
-    private double[][] PSD() throws MatlabInvocationException, MatlabConnectionException {
-        MatlabProxy proxy = matlab.MatlabOperations.openConnection();
+    private double[][] PSD() {
+        MatlabProxy proxy = null;
+        try {
+            proxy = matlab.MatlabOperations.openConnection();
+        } catch (MatlabConnectionException e) {
+            e.printStackTrace();
+        }
         String path = Operations.getProperties().getProperty("filepath");
 
-        proxy.eval("addpath('" + path + "')");
+        // Object[] psdResult = new Object[0];
+        try {
+            proxy.eval("addpath('" + path + "')");
+            Object[] psdResult = proxy.returningFeval("PSD", 1, 0.1, 10000, 0, 0, 0.5, 1e-15, this.a2, this.b2, this.c2,
+                    this.alpha2, this.beta2);
+            double[] result = (double[]) psdResult[0];
+            int pointsNumber = result.length / 2;
 
-        Object[] psdResult = proxy.returningFeval("PSD", 1, 0.1, 10000, 0, 0, 0.5, 1e-15, this.a2, this.b2, this.c2,
-                this.alpha2, this.beta2);
-        double[] result = (double[]) psdResult[0];
-        int pointsNumber = result.length / 2;
+            double[][] points = new double[pointsNumber][2];
 
-        double[][] points = new double[pointsNumber][2];
+            for (int i = 0; i < pointsNumber; i++) {
+                points[i][0] = result[i];
+                points[i][1] = result[i + pointsNumber];
+            }
 
-        for (int i = 0; i < pointsNumber; i++) {
-            points[i][0] = result[i];
-            points[i][1] = result[i + pointsNumber];
+            proxy.eval("rmpath('" + path + "')");
+
+
+            proxy.disconnect();
+            points = NumericOperations.removeZeros(points);
+            return points;
+        } catch (MatlabInvocationException e) {
+            e.printStackTrace();
         }
-
-        proxy.eval("rmpath('" + path + "')");
-        proxy.disconnect();
-        points = NumericOperations.removeZeros(points);
-        return points;
+        return null;
     }
     /**
      * Calculate inverse sum of extremums  of AF
@@ -142,14 +155,6 @@ public class Creature {
      */
     private double fitnessFunctionExtremum() {
         // points of amplitude function
-        double[][] afPoints = new double[0][];
-        try {
-            afPoints = PSD();
-        } catch (MatlabInvocationException e) {
-            e.printStackTrace();
-        } catch (MatlabConnectionException e) {
-            e.printStackTrace();
-        }
         double extremumSum = 0.0;
         for (int i = 1; i < afPoints.length - 1; i++) {
             if (afPoints[i - 1][1] < afPoints[i][1] && afPoints[i][1] > afPoints[i + 1][1]) {
@@ -169,14 +174,6 @@ public class Creature {
      */
     private double fitnessFunctionExtremumGrid() {
         // points of amplitude function
-        double[][] afPoints = new double[0][];
-        try {
-            afPoints = PSD();
-        } catch (MatlabInvocationException e) {
-            e.printStackTrace();
-        } catch (MatlabConnectionException e) {
-            e.printStackTrace();
-        }
         double extremumSum = 0.0;
 
         double range = afPoints[afPoints.length - 1][0] - afPoints[0][0];
@@ -206,14 +203,6 @@ public class Creature {
      */
     private double fitnessDerivativeExtremum() {
         // points of amplitude function
-        double[][] afPoints = new double[0][];
-        try {
-            afPoints = PSD();
-        } catch (MatlabInvocationException e) {
-            e.printStackTrace();
-        } catch (MatlabConnectionException e) {
-            e.printStackTrace();
-        }
         double range = afPoints[afPoints.length - 1][0] - afPoints[0][0];
         double step = Math.min(range / numberSteps, afPoints[1][0] - afPoints[0][0]);
         long stepsNumber = Math.round(range / step);
